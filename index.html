@@ -16,20 +16,21 @@
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50">
         <div class="max-w-5xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center p-1 shadow">
-                    <i class="fa-solid fa-school text-blue-900 text-2xl"></i>
+                <!-- 사용자가 업로드한 logo.png 파일을 직접 읽어오는 영역 -->
+                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center p-1 shadow overflow-hidden">
+                    <img src="logo.png" alt="학교 로고" class="w-full h-full object-contain" onerror="this.src='https://api.iconify.design/fluent-emoji-flat:school.svg'">
                 </div>
                 <div>
                     <h1 class="text-lg font-bold">통영고등학교 도우미</h1>
                     <p class="text-xs text-blue-200">학생·선생님 통합 지원 시스템</p>
                 </div>
             </div>
+            <!-- 내비게이션 및 우측 상단 관리자 로그인 버튼 -->
             <nav class="flex flex-wrap items-center justify-center gap-1.5 text-sm font-medium">
                 <button onclick="switchTab('faq')" id="btn-faq" class="px-3 py-1.5 rounded-lg bg-blue-800 text-white transition shadow-sm">FAQ</button>
                 <button onclick="switchTab('qna')" id="btn-qna" class="px-3 py-1.5 rounded-lg hover:bg-blue-800 transition">질문 게시판</button>
                 <button onclick="switchTab('lost')" id="btn-lost" class="px-3 py-1.5 rounded-lg hover:bg-blue-800 transition">분실물</button>
                 <button onclick="switchTab('uniform')" id="btn-uniform" class="px-3 py-1.5 rounded-lg hover:bg-blue-800 transition">교복실</button>
-                <!-- 명확하게 추가된 관리자 로그인 버튼 -->
                 <button onclick="toggleAdminLogin()" id="btn-admin-login" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition text-xs font-bold ml-2 shadow-sm">
                     <i class="fa-solid fa-lock mr-1"></i> 관리자 로그인
                 </button>
@@ -170,7 +171,7 @@
                     isAdminLoggedIn = true;
                     localStorage.setItem('isAdminLoggedIn', 'true');
                     updateAdminUI();
-                    alert("관리자로 로그인되었습니다! 이제 비밀번호 입력 없이 관리자 기능을 사용할 수 있습니다.");
+                    alert("관리자로 로그인되었습니다! 이제 브라우저를 껐다 켜도 로그인 상태가 유지됩니다.");
                 } else {
                     alert("아이디 또는 비밀번호가 올바르지 않습니다.");
                 }
