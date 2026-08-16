@@ -1,30 +1,57 @@
-// [기존 코드의 lostForm.onsubmit 부분을 아래 코드로 바꿔주세요]
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>통영고등학교 도우미</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 p-10">
+    <h1 class="text-2xl font-bold mb-5">분실물 등록 테스트</h1>
+    <form id="lostForm" class="space-y-4">
+        <input type="text" id="itemName" placeholder="물품 이름" required class="block w-full p-2 border">
+        <input type="text" id="itemLocation" placeholder="장소" required class="block w-full p-2 border">
+        <input type="file" id="itemImage" accept="image/*" required class="block">
+        <button type="submit" class="bg-blue-900 text-white px-4 py-2">등록하기</button>
+    </form>
 
-document.getElementById('lostForm').onsubmit = (e) => {
-    e.preventDefault();
-    const name = document.getElementById('itemName').value;
-    const location = document.getElementById('itemLocation').value;
-    const imageFile = document.getElementById('itemImage').files[0];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    console.log("등록 시도 중...", name, location); // 1. 로그 추가
-
-    if (imageFile) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const compressedDataUrl = event.target.result; // 테스트를 위해 압축 로직 일시 중단
-            
-            addDoc(collection(db, "lostItems"), { 
-                name, 
-                location, 
-                image: compressedDataUrl, 
-                createdAt: Date.now() 
-            }).then(() => {
-                console.log("Firestore 저장 성공!"); // 2. 저장 확인 로그
-            }).catch((err) => {
-                console.error("Firestore 저장 실패:", err); // 3. 에러 확인 로그
-            });
-            document.getElementById('lostForm').reset();
+        const firebaseConfig = {
+            apiKey: "AIzaSyDhwMYq-_maT30RqGeafPV24IhjcFNXmxA",
+            authDomain: "tyhs-project.firebaseapp.com",
+            projectId: "tyhs-project",
+            storageBucket: "tyhs-project.firebasestorage.app",
+            messagingSenderId: "825220196122",
+            appId: "1:825220196122:web:4b965a3486c52be411aea3"
         };
-        reader.readAsDataURL(imageFile);
-    }
-};
+
+        const db = getFirestore(initializeApp(firebaseConfig));
+
+        document.getElementById('lostForm').onsubmit = (e) => {
+            e.preventDefault();
+            const name = document.getElementById('itemName').value;
+            const location = document.getElementById('itemLocation').value;
+            const file = document.getElementById('itemImage').files[0];
+            
+            console.log("등록 시도 중...", name, location);
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                addDoc(collection(db, "lostItems"), { 
+                    name, location, image: event.target.result, createdAt: Date.now() 
+                }).then(() => {
+                    console.log("Firestore 저장 성공!");
+                    alert("성공적으로 저장되었습니다.");
+                }).catch((err) => {
+                    console.error("저장 실패:", err);
+                    alert("저장 실패: " + err.message);
+                });
+            };
+            reader.readAsDataURL(file);
+        };
+    </script>
+</body>
+</html>
