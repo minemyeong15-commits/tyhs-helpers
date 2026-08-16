@@ -24,11 +24,15 @@
                     <p class="text-xs text-blue-200">학생·선생님 통합 지원 시스템</p>
                 </div>
             </div>
-            <nav class="flex flex-wrap justify-center gap-1.5 text-sm font-medium">
+            <nav class="flex flex-wrap items-center justify-center gap-1.5 text-sm font-medium">
                 <button onclick="switchTab('faq')" id="btn-faq" class="px-3 py-1.5 rounded-lg bg-blue-800 text-white transition shadow-sm">FAQ</button>
                 <button onclick="switchTab('qna')" id="btn-qna" class="px-3 py-1.5 rounded-lg hover:bg-blue-800 transition">질문 게시판</button>
                 <button onclick="switchTab('lost')" id="btn-lost" class="px-3 py-1.5 rounded-lg hover:bg-blue-800 transition">분실물</button>
                 <button onclick="switchTab('uniform')" id="btn-uniform" class="px-3 py-1.5 rounded-lg hover:bg-blue-800 transition">교복실</button>
+                <!-- 관리자 로그인 버튼 -->
+                <button onclick="toggleAdminLogin()" id="btn-admin-login" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition text-xs font-bold ml-2 shadow-sm">
+                    <i class="fa-solid fa-lock mr-1"></i> 관리자 로그인
+                </button>
             </nav>
         </div>
     </header>
@@ -131,7 +135,47 @@
 
     <!-- 자바스크립트 통합 로직 -->
     <script>
-        const adminPassword = "tyhs2026";
+        // 관리자 로그인 상태 및 인증 정보 관리
+        const ADMIN_ID = "tyhs2026";
+        const ADMIN_PW = "tyhs2026!@";
+
+        let isAdminLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
+
+        function updateAdminUI() {
+            const btn = document.getElementById('btn-admin-login');
+            if (isAdminLoggedIn) {
+                btn.innerHTML = `<i class="fa-solid fa-lock-open mr-1"></i> 관리자 (로그인됨)`;
+                btn.className = "px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition text-xs font-bold ml-2 shadow-sm";
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-lock mr-1"></i> 관리자 로그인`;
+                btn.className = "px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition text-xs font-bold ml-2 shadow-sm";
+            }
+        }
+
+        function toggleAdminLogin() {
+            if (isAdminLoggedIn) {
+                if (confirm("관리자 계정에서 로그아웃 하시겠습니까?")) {
+                    isAdminLoggedIn = false;
+                    localStorage.setItem('isAdminLoggedIn', 'false');
+                    updateAdminUI();
+                    alert("로그아웃되었습니다.");
+                }
+            } else {
+                const inputId = prompt("관리자 아이디를 입력하세요:");
+                if (!inputId) return;
+                const inputPw = prompt("관리자 비밀번호를 입력하세요:");
+                if (!inputPw) return;
+
+                if (inputId === ADMIN_ID && inputPw === ADMIN_PW) {
+                    isAdminLoggedIn = true;
+                    localStorage.setItem('isAdminLoggedIn', 'true');
+                    updateAdminUI();
+                    alert("관리자로 로그인되었습니다! 이제 비밀번호 입력 없이 관리자 기능을 사용할 수 있습니다.");
+                } else {
+                    alert("아이디 또는 비밀번호가 올바르지 않습니다.");
+                }
+            }
+        }
 
         function switchTab(tabName) {
             ['faq', 'qna', 'lost', 'uniform'].forEach(t => {
@@ -182,34 +226,32 @@
             const text = document.getElementById('questionInput').value.trim();
             if(!text) return;
             qnaList.unshift({ text: text, answer: '' });
-            localStorage.setItem('qnaList', JSON.stringify(qnaList)); // 즉시 저장
+            localStorage.setItem('qnaList', JSON.stringify(qnaList));
             renderQnA();
             document.getElementById('questionInput').value = '';
         };
 
         function answerQnA(idx) {
-            const pw = prompt("관리자(선생님) 비밀번호를 입력하세요:");
-            if (pw !== adminPassword) {
-                if (pw !== null) alert("비밀번호가 틀렸습니다.");
+            if (!isAdminLoggedIn) {
+                alert("관리자 로그인이 필요합니다. 상단의 '관리자 로그인' 버튼을 눌러주세요.");
                 return;
             }
             const ans = prompt("선생님 답글을 입력하세요:");
             if (ans && ans.trim()) {
                 qnaList[idx].answer = "담당 선생님: " + ans.trim();
-                localStorage.setItem('qnaList', JSON.stringify(qnaList)); // 즉시 저장
+                localStorage.setItem('qnaList', JSON.stringify(qnaList));
                 renderQnA();
             }
         }
 
         function deleteQnA(idx) {
-            const pw = prompt("삭제하려면 관리자 비밀번호를 입력하세요:");
-            if (pw !== adminPassword) {
-                if (pw !== null) alert("비밀번호가 틀렸습니다.");
+            if (!isAdminLoggedIn) {
+                alert("관리자 로그인이 필요합니다. 상단의 '관리자 로그인' 버튼을 눌러주세요.");
                 return;
             }
             if (confirm("정말 이 질문을 삭제하시겠습니까?")) {
                 qnaList.splice(idx, 1);
-                localStorage.setItem('qnaList', JSON.stringify(qnaList)); // 즉시 저장
+                localStorage.setItem('qnaList', JSON.stringify(qnaList));
                 renderQnA();
             }
         }
@@ -266,13 +308,12 @@
         };
 
         function deleteLost(idx) {
-            const pw = prompt("관리자 비밀번호를 입력하세요:");
-            if (pw === adminPassword) {
-                lostList.splice(idx, 1);
-                renderLost();
-            } else if(pw !== null) {
-                alert("비밀번호가 틀렸습니다.");
+            if (!isAdminLoggedIn) {
+                alert("관리자 로그인이 필요합니다. 상단의 '관리자 로그인' 버튼을 눌러주세요.");
+                return;
             }
+            lostList.splice(idx, 1);
+            renderLost();
         }
 
         // --- 3. 교복실 관리 로직 ---
@@ -323,9 +364,8 @@
         }
 
         function editQty(idx) {
-            const pw = prompt("관리자 비밀번호를 입력하세요:");
-            if (pw !== adminPassword) {
-                if (pw !== null) alert("비밀번호가 틀렸습니다.");
+            if (!isAdminLoggedIn) {
+                alert("관리자 로그인이 필요합니다. 상단의 '관리자 로그인' 버튼을 눌러주세요.");
                 return;
             }
             const newQty = prompt(`'${uniformList[idx].name}'의 변경할 잔여 수량을 입력하세요:`, uniformList[idx].qty);
@@ -336,9 +376,8 @@
         }
 
         function deleteUniformItem(idx) {
-            const pw = prompt("관리자 비밀번호를 입력하세요:");
-            if (pw !== adminPassword) {
-                if (pw !== null) alert("비밀번호가 틀렸습니다.");
+            if (!isAdminLoggedIn) {
+                alert("관리자 로그인이 필요합니다. 상단의 '관리자 로그인' 버튼을 눌러주세요.");
                 return;
             }
             if (confirm(`'${uniformList[idx].name}' 항목을 교복실 목록에서 삭제하시겠습니까?`)) {
@@ -370,9 +409,8 @@
         }
 
         function viewUniformApplicants() {
-            const pw = prompt("관리자 비밀번호를 입력하세요:");
-            if (pw !== adminPassword) {
-                if (pw !== null) alert("비밀번호가 틀렸습니다.");
+            if (!isAdminLoggedIn) {
+                alert("관리자 로그인이 필요합니다. 상단의 '관리자 로그인' 버튼을 눌러주세요.");
                 return;
             }
 
@@ -408,7 +446,8 @@
             );
         }
 
-        // 초기 렌더링 실행
+        // 초기화 실행
+        updateAdminUI();
         renderQnA();
         renderLost();
         renderUniform();
