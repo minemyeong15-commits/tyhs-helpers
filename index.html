@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>통영고등학교 도우미</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- 상단 헤더 -->
+    <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center p-1 shadow">
+                    <i class="fa-solid fa-school text-blue-900 text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold">통영고등학교 도우미</h1>
+                    <p class="text-xs text-blue-200">학생·선생님 통합 지원 시스템</p>
+                </div>
+            </div>
+            <nav class="flex flex-wrap justify-center gap-1.5 text-sm font-medium">
+                <button onclick="switchTab('faq')" id="btn-faq" class="px-3 py-1.5 rounded-lg bg-blue-800 text-white transition shadow-sm">FAQ</button>
+                <button onclick="switchTab('qna')" id="btn-qna" class="px-3 py-1.5 rounded-lg hover:bg-blue-800 transition">질문 게시판</button>
+                <button onclick="switchTab('lost')" id="btn-lost" class="px-3 py-1.5 rounded-lg hover:bg-blue-800 transition">분실물</button>
+                <button onclick="switchTab('uniform')" id="btn-uniform" class="px-3 py-1.5 rounded-lg hover:bg-blue-800 transition">교복실</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="max-w-5xl w-full mx-auto px-4 py-6 flex-grow">
+        
+        <!-- 1. 예상 질문 (FAQ) 탭 -->
+        <section id="tab-faq" class="space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h2 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-amber-500"></i> 학교생활 핵심 정보 및 FAQ
+                </h2>
+                <div class="space-y-3">
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <h3 class="font-semibold text-blue-800 text-sm md:text-base">Q. 교복 대여 및 구매는 어떻게 하나요?</h3>
+                        <p class="text-xs md:text-sm text-slate-600 mt-1">상단 '교복실' 탭에서 동복/하복 종류와 가격을 확인하신 후 신청 버튼을 눌러주세요.</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <h3 class="font-semibold text-blue-800 text-sm md:text-base">Q. 분실물을 찾았거나 잃어버렸어요.</h3>
+                        <p class="text-xs md:text-sm text-slate-600 mt-1">'분실물' 탭에서 검색 기능을 통해 물품을 찾거나 등록할 수 있습니다.</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <h3 class="font-semibold text-blue-800 text-sm md:text-base">Q. 선생님께 직접 질문하고 싶어요!</h3>
+                        <p class="text-xs md:text-sm text-slate-600 mt-1">'질문 게시판' 탭을 이용해 주세요.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 질문 게시판 탭 -->
+        <section id="tab-qna" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h2 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-comments text-blue-600"></i> 학생-선생님 소통 질문 게시판
+                </h2>
+                <form id="qnaForm" class="mb-4 flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="questionInput" placeholder="선생님께 궁금한 점을 자유롭게 입력하세요..." required class="flex-grow px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="submit" class="bg-blue-900 text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-blue-800 transition">질문하기</button>
+                </form>
+                <!-- 검색창 -->
+                <div class="mb-6">
+                    <input type="text" id="qnaSearch" oninput="renderQnA()" placeholder="🔍 질문 내용 검색..." class="w-full px-4 py-2 border rounded-lg text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div id="qnaList" class="space-y-4"></div>
+            </div>
+        </section>
+
+        <!-- 3. 분실물 센터 탭 -->
+        <section id="tab-lost" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h2 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass text-blue-600"></i> 분실물 센터
+                </h2>
+                <form id="lostForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-4 bg-slate-50 p-4 rounded-xl border border-slate-200 items-center">
+                    <input type="text" id="itemName" placeholder="물품 이름" required class="px-3 py-2 border rounded-lg text-sm bg-white">
+                    <input type="text" id="itemLocation" placeholder="분실/습득 장소" required class="px-3 py-2 border rounded-lg text-sm bg-white">
+                    <input type="file" id="itemImage" accept="image/*" required class="text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <button type="submit" class="bg-blue-900 text-white py-2 rounded-lg font-medium text-sm hover:bg-blue-800 transition">등록하기</button>
+                </form>
+                <!-- 검색창 -->
+                <div class="mb-6">
+                    <input type="text" id="lostSearch" oninput="renderLost()" placeholder="🔍 물품 이름 또는 장소 검색..." class="w-full px-4 py-2 border rounded-lg text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div id="lostList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+            </div>
+        </section>
+
+        <!-- 4. 교복실 탭 -->
+        <section id="tab-uniform" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <h2 class="text-lg font-bold text-blue-900 flex items-center gap-2">
+                    <i class="fa-solid fa-shirt text-blue-600"></i> 교복실 재고 현황
+                </h2>
+                <button onclick="viewUniformApplicants()" class="bg-blue-700 text-white text-xs px-3 py-2 rounded-lg hover:bg-blue-600 transition shadow-sm">📋 [관리자] 신청자 명단 확인</button>
+            </div>
+            <div class="overflow-x-auto bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+                <table class="w-full text-sm text-left">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-700 border-b">
+                            <th class="p-3">구분</th>
+                            <th class="p-3">종류</th>
+                            <th class="p-3">가격</th>
+                            <th class="p-3">잔여 수량</th>
+                            <th class="p-3 text-center">재고 수정</th>
+                            <th class="p-3 text-center">항목 삭제</th>
+                            <th class="p-3 text-center">신청</th>
+                        </tr>
+                    </thead>
+                    <tbody id="uniformTable" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- 하단 푸터 -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        통영고등학교 학생·교직원을 위한 온라인 도우미 서비스 &copy; 2026 All Rights Reserved.
+    </footer>
+
+    <!-- 자바스크립트 통합 로직 -->
+    <script>
+        const adminPassword = "tyhs2026";
+
+        function switchTab(tabName) {
+            ['faq', 'qna', 'lost', 'uniform'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                document.getElementById(`btn-${t}`).classList.remove('bg-blue-800', 'text-white', 'shadow-sm');
+                document.getElementById(`btn-${t}`).classList.add('hover:bg-blue-800');
+            });
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`btn-${tabName}`).classList.remove('hover:bg-blue-800');
+            document.getElementById(`btn-${tabName}`).classList.add('bg-blue-800', 'text-white', 'shadow-sm');
+        }
+
+        // --- 1. Q&A (질문 게시판) 로직 ---
+        let qnaList = JSON.parse(localStorage.getItem('qnaList')) || [];
+
+        function renderQnA() {
+            const list = document.getElementById('qnaList');
+            const keyword = document.getElementById('qnaSearch').value.toLowerCase();
+            list.innerHTML = '';
+            
+            const filtered = qnaList.filter(q => q.text.toLowerCase().includes(keyword) || (q.answer && q.answer.toLowerCase().includes(keyword)));
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<p class="text-sm text-slate-400 text-center py-6">등록된 질문이 없습니다.</p>`;
+                return;
+            }
+
+            filtered.forEach((q) => {
+                const idx = qnaList.indexOf(q);
+                list.innerHTML += `
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                        <div class="flex justify-between items-start">
+                            <p class="font-bold text-sm text-slate-800"><i class="fa-solid fa-circle-question text-blue-600 mr-1.5"></i> 질문: ${escapeHtml(q.text)}</p>
+                            <button onclick="deleteQnA(${idx})" class="text-slate-400 hover:text-red-500 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                        <div class="pl-5 pt-1 border-t border-slate-200 mt-2">
+                            ${q.answer 
+                                ? `<p class="text-sm text-blue-900 font-medium"><i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> ${escapeHtml(q.answer)}</p>` 
+                                : `<button onclick="answerQnA(${idx})" class="text-xs bg-white border border-slate-300 px-3 py-1 rounded-lg text-slate-600 hover:bg-slate-100 transition shadow-xs">선생님 답글 달기</button>`
+                            }
+                        </div>
+                    </div>`;
+            });
+        }
+
+        document.getElementById('qnaForm').onsubmit = (e) => {
+            e.preventDefault();
+            const text = document.getElementById('questionInput').value.trim();
+            if(!text) return;
+            qnaList.unshift({ text: text, answer: '' });
+            localStorage.setItem('qnaList', JSON.stringify(qnaList)); // 즉시 저장
+            renderQnA();
+            document.getElementById('questionInput').value = '';
+        };
+
+        function answerQnA(idx) {
+            const pw = prompt("관리자(선생님) 비밀번호를 입력하세요:");
+            if (pw !== adminPassword) {
+                if (pw !== null) alert("비밀번호가 틀렸습니다.");
+                return;
+            }
+            const ans = prompt("선생님 답글을 입력하세요:");
+            if (ans && ans.trim()) {
+                qnaList[idx].answer = "담당 선생님: " + ans.trim();
+                localStorage.setItem('qnaList', JSON.stringify(qnaList)); // 즉시 저장
+                renderQnA();
+            }
+        }
+
+        function deleteQnA(idx) {
+            const pw = prompt("삭제하려면 관리자 비밀번호를 입력하세요:");
+            if (pw !== adminPassword) {
+                if (pw !== null) alert("비밀번호가 틀렸습니다.");
+                return;
+            }
+            if (confirm("정말 이 질문을 삭제하시겠습니까?")) {
+                qnaList.splice(idx, 1);
+                localStorage.setItem('qnaList', JSON.stringify(qnaList)); // 즉시 저장
+                renderQnA();
+            }
+        }
+
+        // --- 2. 분실물 센터 로직 ---
+        let lostList = JSON.parse(localStorage.getItem('lostList')) || [];
+
+        function renderLost() {
+            const list = document.getElementById('lostList');
+            const keyword = document.getElementById('lostSearch').value.toLowerCase();
+            list.innerHTML = '';
+
+            const filtered = lostList.filter(item => item.name.toLowerCase().includes(keyword) || item.location.toLowerCase().includes(keyword));
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<p class="text-sm text-slate-400 text-center py-6 col-span-full">검색된 분실물이 없습니다.</p>`;
+                return;
+            }
+
+            filtered.forEach((item) => {
+                const idx = lostList.indexOf(item);
+                list.innerHTML += `
+                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs flex flex-col justify-between">
+                        <div>
+                            <img src="${item.image}" alt="분실물 이미지" class="w-full h-40 object-cover bg-slate-100">
+                            <div class="p-3 space-y-1">
+                                <h3 class="font-bold text-sm text-slate-800">${escapeHtml(item.name)}</h3>
+                                <p class="text-xs text-slate-500"><i class="fa-solid fa-location-dot mr-1"></i> 장소: ${escapeHtml(item.location)}</p>
+                            </div>
+                        </div>
+                        <div class="p-3 pt-0 flex justify-end">
+                            <button onclick="deleteLost(${idx})" class="text-xs text-red-500 hover:underline">삭제</button>
+                        </div>
+                    </div>`;
+            });
+            localStorage.setItem('lostList', JSON.stringify(lostList));
+        }
+
+        document.getElementById('lostForm').onsubmit = (e) => {
+            e.preventDefault();
+            const name = document.getElementById('itemName').value;
+            const location = document.getElementById('itemLocation').value;
+            const imageFile = document.getElementById('itemImage').files[0];
+
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    lostList.unshift({ name, location, image: event.target.result });
+                    renderLost();
+                    document.getElementById('lostForm').reset();
+                };
+                reader.readAsDataURL(imageFile);
+            }
+        };
+
+        function deleteLost(idx) {
+            const pw = prompt("관리자 비밀번호를 입력하세요:");
+            if (pw === adminPassword) {
+                lostList.splice(idx, 1);
+                renderLost();
+            } else if(pw !== null) {
+                alert("비밀번호가 틀렸습니다.");
+            }
+        }
+
+        // --- 3. 교복실 관리 로직 ---
+        const defaultUniforms = [
+            { category: "하복", name: "하복 상의", price: "1,000원", qty: 10 },
+            { category: "하복", name: "하복 하의", price: "1,000원", qty: 10 },
+            { category: "동복", name: "동복 바지", price: "1,000원", qty: 8 },
+            { category: "동복", name: "넥타이", price: "1,000원", qty: 15 },
+            { category: "동복", name: "마이", price: "2,000원", qty: 5 },
+            { category: "동복", name: "와이셔츠", price: "1,000원", qty: 12 },
+            { category: "동복", name: "조끼", price: "1,000원", qty: 8 }
+        ];
+
+        let storedUniforms = JSON.parse(localStorage.getItem('uniformList'));
+        let uniformList = (!storedUniforms || storedUniforms.length === 0 || storedUnformsHasOldData(storedUniforms)) ? defaultUniforms : storedUniforms;
+
+        function storedUnformsHasOldData(list) {
+            return list.some(item => item.name.includes("스커트") || (item.name.includes("조끼") && !item.category));
+        }
+
+        let uniformApplicants = JSON.parse(localStorage.getItem('uniformApplicants')) || [];
+
+        function renderUniform() {
+            const tbody = document.getElementById('uniformTable');
+            tbody.innerHTML = '';
+            
+            uniformList.forEach((item, idx) => {
+                const badgeColor = item.category === "하복" ? "bg-emerald-100 text-emerald-800" : "bg-indigo-100 text-indigo-800";
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${badgeColor}">${escapeHtml(item.category)}</span></td>
+                        <td class="p-3 font-medium text-slate-800">${escapeHtml(item.name)}</td>
+                        <td class="p-3 text-slate-600">${escapeHtml(item.price)}</td>
+                        <td class="p-3 text-slate-600 font-semibold">${item.qty}벌</td>
+                        <td class="p-3 text-center">
+                            <button onclick="editQty(${idx})" class="bg-slate-200 text-slate-700 text-xs px-2.5 py-1 rounded hover:bg-slate-300 transition">수량 수정</button>
+                        </td>
+                        <td class="p-3 text-center">
+                            <button onclick="deleteUniformItem(${idx})" class="bg-red-100 text-red-600 text-xs px-2.5 py-1 rounded hover:bg-red-200 transition">삭제</button>
+                        </td>
+                        <td class="p-3 text-center">
+                            <button onclick="applyUniform(${idx})" class="bg-blue-900 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-blue-800 transition">신청</button>
+                        </td>
+                    </tr>`;
+            });
+            localStorage.setItem('uniformList', JSON.stringify(uniformList));
+            localStorage.setItem('uniformApplicants', JSON.stringify(uniformApplicants));
+        }
+
+        function editQty(idx) {
+            const pw = prompt("관리자 비밀번호를 입력하세요:");
+            if (pw !== adminPassword) {
+                if (pw !== null) alert("비밀번호가 틀렸습니다.");
+                return;
+            }
+            const newQty = prompt(`'${uniformList[idx].name}'의 변경할 잔여 수량을 입력하세요:`, uniformList[idx].qty);
+            if (newQty !== null && !isNaN(newQty)) {
+                uniformList[idx].qty = parseInt(newQty);
+                renderUniform();
+            }
+        }
+
+        function deleteUniformItem(idx) {
+            const pw = prompt("관리자 비밀번호를 입력하세요:");
+            if (pw !== adminPassword) {
+                if (pw !== null) alert("비밀번호가 틀렸습니다.");
+                return;
+            }
+            if (confirm(`'${uniformList[idx].name}' 항목을 교복실 목록에서 삭제하시겠습니까?`)) {
+                uniformList.splice(idx, 1);
+                renderUniform();
+            }
+        }
+
+        function applyUniform(idx) {
+            if (uniformList[idx].qty <= 0) {
+                alert("현재 잔여 수량이 부족합니다.");
+                return;
+            }
+            const studentId = prompt("학번을 입력하세요 (예: 10101):");
+            if (!studentId) return;
+            const studentName = prompt("이름을 입력하세요:");
+            if (!studentName) return;
+
+            uniformList[idx].qty -= 1;
+            uniformApplicants.unshift({
+                item: `[${uniformList[idx].category}] ${uniformList[idx].name}`,
+                studentId: studentId,
+                name: studentName,
+                date: new Date().toLocaleDateString()
+            });
+
+            renderUniform();
+            alert(`${studentName}님, ${uniformList[idx].name} 신청이 완료되었습니다! 교복실을 방문해 주세요.`);
+        }
+
+        function viewUniformApplicants() {
+            const pw = prompt("관리자 비밀번호를 입력하세요:");
+            if (pw !== adminPassword) {
+                if (pw !== null) alert("비밀번호가 틀렸습니다.");
+                return;
+            }
+
+            if (uniformApplicants.length === 0) {
+                alert("현재 교복 신청 내역이 없습니다.");
+                return;
+            }
+
+            let msg = "--- [교복 신청자 명단] ---\n\n";
+            uniformApplicants.forEach((app, i) => {
+                msg += `${i+1}. 품목: ${app.item} | 학번: ${app.studentId} | 이름: ${app.name} (${app.date})\n`;
+            });
+            msg += "\n💡 구입 완료된 항목을 삭제하려면 해당 번호를 입력하세요 (취소하려면 취소/빈칸):";
+
+            const target = prompt(msg);
+            if (target !== null && target.trim() !== "") {
+                const idx = parseInt(target) - 1;
+                if (!isNaN(idx) && idx >= 0 && idx < uniformApplicants.length) {
+                    const removed = uniformApplicants.splice(idx, 1);
+                    localStorage.setItem('uniformApplicants', JSON.stringify(uniformApplicants));
+                    alert(`[${removed[0].name}]님의 신청 내역이 삭제되었습니다.`);
+                    renderUniform();
+                } else {
+                    alert("올바른 번호를 입력해주세요.");
+                }
+            }
+        }
+
+        // XSS 방지용 간단 헬퍼 함수
+        function escapeHtml(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        // 초기 렌더링 실행
+        renderQnA();
+        renderLost();
+        renderUniform();
+    </script>
+</body>
+</html>
